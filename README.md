@@ -77,21 +77,27 @@ Respond with JSON: {"summary": "2-3 sentence summary", "priority": "low|medium|h
 ```bash
 # 1. Clone and install
 composer install
-npm install
 cp .env.example .env
 php artisan key:generate
 
-# 2. Configure database in .env (MySQL recommended)
+# 2. Configure MySQL in .env
 # DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
 # DB_DATABASE=task_management
+# DB_USERNAME=root
+# DB_PASSWORD=
 
-# 3. Run migrations + seed demo data
+# 3. Create the database
+mysql -u root -e "CREATE DATABASE task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# 4. Run migrations + seed demo data
 php artisan migrate --seed
 
-# 4. Build frontend assets
-npm run build
+# 5. Start the server (no npm/build step needed — uses Tailwind CDN)
+php artisan serve
 
-# 5. (Optional) Start queue worker for AI processing
+# 6. (Optional) Start queue worker for AI background processing
 php artisan queue:work
 ```
 
