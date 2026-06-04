@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskStatusRequest;
 use App\Http\Resources\TaskResource;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\Task;
 use App\Services\TaskService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -33,13 +34,9 @@ class TaskApiController extends Controller
         return response()->json(new TaskResource($task), 201);
     }
 
-    public function updateStatus(Request $request, Task $task): JsonResponse
+    public function updateStatus(UpdateTaskStatusRequest $request, Task $task): JsonResponse
     {
-        $this->authorize('updateStatus', $task);
-
-        $request->validate(['status' => 'required|in:pending,in_progress,completed']);
-
-        $task = $this->taskService->updateStatus($task->id, $request->status);
+        $task = $this->taskService->updateStatus($task->id, $request->validated()['status']);
 
         return response()->json(new TaskResource($task));
     }
@@ -51,7 +48,7 @@ class TaskApiController extends Controller
         $task = $this->taskService->refreshAISummary($task->id);
 
         return response()->json([
-            'ai_summary' => $task->ai_summary,
+            'ai_summary'  => $task->ai_summary,
             'ai_priority' => $task->ai_priority?->value,
         ]);
     }

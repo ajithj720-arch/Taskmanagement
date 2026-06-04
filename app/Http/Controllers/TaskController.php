@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Requests\UpdateTaskStatusRequest;
 use App\Models\Task;
 use App\Services\TaskService;
 use App\Services\UserService;
@@ -97,11 +98,9 @@ class TaskController extends Controller
             ->with('success', 'Task deleted successfully.');
     }
 
-    public function updateStatus(Request $request, Task $task)
+    public function updateStatus(UpdateTaskStatusRequest $request, Task $task)
     {
-        $this->authorize('updateStatus', $task);
-        $request->validate(['status' => 'required|in:pending,in_progress,completed']);
-        $this->taskService->updateStatus($task->id, $request->status);
+        $this->taskService->updateStatus($task->id, $request->validated()['status']);
 
         return back()->with('success', 'Status updated.');
     }
