@@ -1,4 +1,4 @@
-# Task Management System
+﻿# Task Management System
 
 A production-ready, AI-assisted Task Management System built with **Laravel 11** and **Blade**, following clean architecture with the Repository Pattern, Service Layer, and AI integration.
 
@@ -151,3 +151,4 @@ php artisan test
 # or
 ./vendor/bin/phpunit tests/Feature/TaskTest.php
 ```
+
