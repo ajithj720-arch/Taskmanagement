@@ -74,32 +74,87 @@ Respond with JSON: {"summary": "2-3 sentence summary", "priority": "low|medium|h
 
 ## Setup
 
+### 🐳 Option A — Docker (Recommended, Zero Config)
+
+**Requirements:** Docker Desktop installed and running.
+
 ```bash
-# 1. Clone and install
+# 1. Clone the repo
+git clone https://github.com/ajithj720-arch/Taskmanagement.git
+cd Taskmanagement
+
+# 2. Run everything in one command
+chmod +x start.sh && ./start.sh
+```
+
+Or using Make:
+```bash
+make start
+```
+
+The `start.sh` script automatically:
+- Copies `.env.docker` → `.env`
+- Builds Docker images
+- Starts PHP-FPM, Nginx, MySQL containers
+- Waits for MySQL to be ready
+- Generates app key
+- Runs migrations
+- Seeds demo data
+- Fixes permissions
+- Clears caches
+- Runs all tests
+
+**App is live at:** `http://localhost:8000`
+
+#### Docker Commands
+
+```bash
+make up           # Start containers
+make down         # Stop containers
+make rebuild      # Rebuild from scratch
+make logs         # Live container logs
+make migrate      # Run migrations
+make migrate-fresh # Fresh migrate + seed
+make seed         # Seed database
+make test         # Run all tests
+make queue        # Start AI queue worker
+make shell        # Enter app container
+make db           # MySQL shell
+make cache-clear  # Clear all caches
+make clean        # Remove containers + volumes
+make help         # Show all commands
+```
+
+---
+
+### 💻 Option B — Local (Without Docker)
+
+```bash
+# 1. Install dependencies
 composer install
 cp .env.example .env
 php artisan key:generate
 
 # 2. Configure MySQL in .env
-# DB_CONNECTION=mysql
-# DB_HOST=127.0.0.1
-# DB_PORT=3306
-# DB_DATABASE=task_management
-# DB_USERNAME=root
-# DB_PASSWORD=
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=task_management
+DB_USERNAME=root
+DB_PASSWORD=
 
-# 3. Create the database
-mysql -u root -e "CREATE DATABASE task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-
-# 4. Run migrations + seed demo data
+# 3. Create database & migrate
+mysql -u root -e "CREATE DATABASE task_management;"
 php artisan migrate --seed
 
-# 5. Start the server (no npm/build step needed — uses Tailwind CDN)
+# 4. Start server (Tailwind CDN — no npm needed)
 php artisan serve
 
-# 6. (Optional) Start queue worker for AI background processing
+# 5. Start queue worker (for AI jobs)
 php artisan queue:work
 ```
+
+---
 
 **Demo credentials:**
 - Admin: `admin@example.com` / `password`

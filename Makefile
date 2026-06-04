@@ -4,6 +4,9 @@
 ##  SETUP
 ## ─────────────────────────────────────────
 
+start: ## 🚀 One-command full setup (recommended)
+	chmod +x start.sh && ./start.sh
+
 setup: ## Full first-time setup: build, start, configure
 	cp .env.docker .env
 	docker-compose up -d --build
@@ -12,6 +15,7 @@ setup: ## Full first-time setup: build, start, configure
 	docker exec taskmanager_app php artisan key:generate --force
 	docker exec taskmanager_app php artisan migrate --force
 	docker exec taskmanager_app php artisan db:seed --force
+	docker exec taskmanager_app php artisan test
 	@echo ""
 	@echo "✅ App is ready at http://localhost:8000"
 	@echo "   Admin: admin@example.com / password"
