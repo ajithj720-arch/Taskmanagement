@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\User;
@@ -12,3 +14,5 @@ class UserService
         return User::select('id', 'name')->orderBy('name')->get();
     }
 }
+
+

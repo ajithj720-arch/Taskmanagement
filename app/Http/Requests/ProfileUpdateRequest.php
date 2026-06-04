@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Models\User;
@@ -29,3 +31,5 @@ class ProfileUpdateRequest extends FormRequest
         ];
     }
 }
+
+

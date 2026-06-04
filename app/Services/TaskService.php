@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Task;
@@ -74,3 +76,5 @@ class TaskService
         return $this->repo->recent($userId, $isAdmin, $limit);
     }
 }
+
+

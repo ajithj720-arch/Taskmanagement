@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Services\TaskService;
@@ -19,3 +21,5 @@ class DashboardController extends Controller
         ]);
     }
 }
+
+

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
+use App\Data\TaskData;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use Illuminate\Foundation\Http\FormRequest;
@@ -17,12 +20,17 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['sometimes', 'required', 'string', 'max:255'],
+            'title'       => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'priority' => ['sometimes', 'required', Rule::enum(TaskPriority::class)],
-            'status' => ['sometimes', 'required', Rule::enum(TaskStatus::class)],
-            'due_date' => ['nullable', 'date'],
+            'priority'    => ['required', Rule::enum(TaskPriority::class)],
+            'status'      => ['required', Rule::enum(TaskStatus::class)],
+            'due_date'    => ['nullable', 'date'],
             'assigned_to' => ['nullable', 'exists:users,id'],
         ];
+    }
+
+    public function toDto(): TaskData
+    {
+        return TaskData::fromArray($this->validated());
     }
 }

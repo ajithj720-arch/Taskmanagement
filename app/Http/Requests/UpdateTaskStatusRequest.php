@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
+use App\Enums\TaskStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,7 +18,7 @@ class UpdateTaskStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', Rule::in(['pending', 'in_progress', 'completed'])],
+            'status' => ['required', Rule::enum(TaskStatus::class)],
         ];
     }
 
@@ -23,7 +26,12 @@ class UpdateTaskStatusRequest extends FormRequest
     {
         return [
             'status.required' => 'A status is required.',
-            'status.in'       => 'Status must be one of: pending, in_progress, completed.',
+            'status.enum'     => 'Status must be one of: pending, in_progress, completed.',
         ];
+    }
+
+    public function status(): TaskStatus
+    {
+        return TaskStatus::from($this->validated()['status']);
     }
 }

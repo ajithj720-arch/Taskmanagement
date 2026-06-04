@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\TaskPriority;
@@ -51,3 +53,5 @@ class Task extends Model
             ->when($filters['assigned_to'] ?? null, fn($q, $v) => $q->where('assigned_to', $v));
     }
 }
+
+

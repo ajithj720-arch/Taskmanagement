@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\Task;
@@ -35,3 +37,5 @@ class GenerateAISummary implements ShouldQueue
         }
     }
 }
+
+

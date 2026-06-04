@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
@@ -58,3 +60,5 @@ class ProfileController extends Controller
         return Redirect::to('/');
     }
 }
+
+
