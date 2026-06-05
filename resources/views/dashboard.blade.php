@@ -19,32 +19,60 @@
 @endsection
 
 @section('content')
-{{-- Stats row --}}
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 mt-2">
+
+{{-- Stats row — Total, Pending, In Progress, Completed, High Priority --}}
+<div class="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6 mt-2">
     @foreach([
-        ['Total Tasks', $stats['total'], '#3b82f6'],
-        ['Pending', $stats['pending'], '#64748b'],
-        ['In Progress', $stats['in_progress'], '#f59e0b'],
-        ['Completed', $stats['completed'], '#10b981'],
-    ] as [$label, $val, $color])
+        ['Total Tasks',    $stats['total'],        'stat-bar-blue'],
+        ['Pending',        $stats['pending'],       'stat-bar-gray'],
+        ['In Progress',    $stats['in_progress'],   'stat-bar-yellow'],
+        ['Completed',      $stats['completed'],     'stat-bar-green'],
+        ['High Priority',  $stats['high_priority'], 'stat-bar-red'],
+    ] as [$label, $val, $bar])
     <div class="card-bg rounded-xl p-4 border border-white/5">
         <p class="text-xs text-slate-400 mb-1">{{ $label }}</p>
         <p class="text-2xl font-bold text-white">{{ $val }}</p>
-        <div class="mt-2
-            @if($label==='Total Tasks') stat-bar-blue
-            @elseif($label==='Pending') stat-bar-gray
-            @elseif($label==='In Progress') stat-bar-yellow
-            @else stat-bar-green @endif"></div>
+        <div class="mt-2 {{ $bar }}"></div>
     </div>
     @endforeach
 </div>
 
+{{-- Chart.js — Task Status Overview --}}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+    <div class="card-bg rounded-xl border border-white/5 p-5">
+        <p class="text-sm font-semibold text-white mb-4">Task Status Overview</p>
+        <div class="flex justify-center">
+            <canvas id="statusDonut" width="160" height="160"></canvas>
+        </div>
+        <div class="mt-4 space-y-2">
+            @foreach([['Pending','#64748b',$stats['pending']],['In Progress','#f59e0b',$stats['in_progress']],['Completed','#10b981',$stats['completed']]] as [$lbl,$col,$cnt])
+            <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:{{ $col }}"></span>
+                    <span class="text-slate-400">{{ $lbl }}</span>
+                </div>
+                <span class="text-white font-semibold">{{ $cnt }}</span>
+            </div>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="card-bg rounded-xl border border-white/5 p-5 lg:col-span-2">
+        <p class="text-sm font-semibold text-white mb-4">Monthly Task Completion</p>
+        <canvas id="completionBar" height="120"></canvas>
+    </div>
+</div>
+
 {{-- Recent tasks as cards --}}
+<p class="text-sm font-semibold text-white mb-3">Recent Tasks</p>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     @forelse($recentTasks as $task)
     <div class="card-bg rounded-xl border border-white/5 p-5">
         <div class="flex items-center justify-between mb-3">
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold badge-in-progress">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold
+                @if($task->status->value==='completed') badge-completed
+                @elseif($task->status->value==='in_progress') badge-in-progress
+                @else badge-pending @endif">
                 {{ $task->status->label() }}
             </span>
             <span class="text-slate-500 text-lg leading-none cursor-pointer">•••</span>
@@ -81,4 +109,50 @@
     </div>
     @endforelse
 </div>
+
 @endsection
+
+@push('scripts')
+<script>
+// Donut Chart — Task Status
+new Chart(document.getElementById('statusDonut'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Pending', 'In Progress', 'Completed'],
+        datasets: [{
+            data: [{{ $stats['pending'] }}, {{ $stats['in_progress'] }}, {{ $stats['completed'] }}],
+            backgroundColor: ['#64748b', '#f59e0b', '#10b981'],
+            borderWidth: 0,
+            hoverOffset: 6
+        }]
+    },
+    options: {
+        cutout: '70%',
+        responsive: false,
+        plugins: { legend: { display: false } }
+    }
+});
+
+// Bar Chart — Monthly Completion
+new Chart(document.getElementById('completionBar'), {
+    type: 'bar',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+            label: 'Completed Tasks',
+            data: [12, 19, 8, 25, 18, {{ $stats['completed'] }}],
+            backgroundColor: '#3b82f6',
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } },
+            y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#374060' } }
+        }
+    }
+});
+</script>
+@endpush

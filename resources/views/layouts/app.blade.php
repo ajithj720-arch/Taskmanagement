@@ -44,6 +44,7 @@
         .stat-bar-gray   { background-color: #64748b; height:4px; width:60%; border-radius:9999px; }
         .stat-bar-yellow { background-color: #f59e0b; height:4px; width:60%; border-radius:9999px; }
         .stat-bar-green  { background-color: #10b981; height:4px; width:60%; border-radius:9999px; }
+        .stat-bar-red    { background-color: #ef4444; height:4px; width:60%; border-radius:9999px; }
         select option    { background-color: var(--bg-card); }
     </style>
 </head>
