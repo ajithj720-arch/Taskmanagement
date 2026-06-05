@@ -1,9 +1,6 @@
 #!/bin/sh
 set -e
 
-echo "==> Installing Composer dependencies..."
-composer install --no-interaction --optimize-autoloader
-
 echo "==> Waiting for MySQL to be ready..."
 until php -r "new PDO('mysql:host=db;port=3306;dbname=task_management', 'taskuser', 'secret');" 2>/dev/null; do
   echo "    MySQL not ready yet, retrying in 3s..."
