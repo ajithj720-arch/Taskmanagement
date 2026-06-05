@@ -117,8 +117,10 @@
                 </a>
             </div>
             @if(auth()->user()->isAdmin())
-            <a href="#" class="flex items-center px-3 py-2 text-sm text-slate-400 rounded-lg hover:bg-white/10 transition">
-                Users <span class="ml-1 text-xs text-slate-500">(Only visible to Admin)</span>
+            <a href="{{ route('users.index') }}"
+               class="flex items-center px-3 py-2 text-sm rounded-lg font-medium transition {{ request()->routeIs('users.*') ? 'nav-active' : 'text-slate-300 hover:bg-white/10' }}">
+                Users
+                <span class="ml-1 text-xs {{ request()->routeIs('users.*') ? 'text-blue-200' : 'text-slate-500' }}">(Admin only)</span>
             </a>
             @endif
             <form id="logout-form" method="POST" action="{{ route('logout') }}">

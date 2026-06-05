@@ -13,17 +13,28 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        // ── Admin user ──────────────────────────────
         $admin = User::factory()->create([
-            'name' => 'Admin User',
+            'name'  => 'Admin User',
             'email' => 'admin@example.com',
-            'role' => 'admin',
+            'role'  => 'admin',
         ]);
 
+        // ── Regular user ─────────────────────────────
         $user = User::factory()->create([
-            'name' => 'John Doe',
+            'name'  => 'John Doe',
             'email' => 'user@example.com',
-            'role' => 'user',
+            'role'  => 'user',
         ]);
+
+        // ── Add more users here ───────────────────────
+        // Copy and paste this block to add extra users:
+        //
+        // User::factory()->create([
+        //     'name'  => 'Jane Smith',
+        //     'email' => 'jane@example.com',
+        //     'role'  => 'user',   // 'user' or 'admin'
+        // ]);
 
         $tasks = [
             ['title' => 'Set up project infrastructure', 'description' => 'Configure CI/CD pipeline, Docker, and deployment scripts for the new project.', 'priority' => 'high', 'status' => 'completed'],
