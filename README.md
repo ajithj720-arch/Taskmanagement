@@ -338,14 +338,16 @@ This starts 3 containers:
 | Container | Role | Port |
 |---|---|---|
 | `taskmanager_app` | PHP 8.3-FPM (runs Laravel) | 9000 (internal) |
-| `taskmanager_nginx` | Nginx (serves the web app) | **8000 → 80** |
-| `taskmanager_db` | MySQL 8.0 (database) | 3306 |
+| `taskmanager_nginx` | Nginx (serves the web app) | **8090 → 80** |
+| `taskmanager_db` | MySQL 8.0 (database) | **3307 → 3306** |
+
+> **Note:** Ports `8090` and `3307` are used to avoid conflicts with locally running services (Laragon, XAMPP, etc. typically use `8000` and `3306`).
 
 ---
 
 #### Step 5 — Wait for Startup to Complete
 
-The app container automatically runs migrations, seeds data, and clears caches (~15–20 seconds). Watch progress with:
+The app container automatically installs dependencies, runs migrations, seeds data, and clears caches. This takes **1–2 minutes** on first run. Watch progress with:
 
 ```bash
 docker compose logs -f app
@@ -363,7 +365,7 @@ Press `Ctrl+C` to stop following logs.
 
 #### Step 6 — Open the Application
 
-Open your browser: **http://localhost:8000**
+Open your browser: **http://localhost:8090**
 
 | Role | Email | Password |
 |------|-------|----------|
@@ -442,37 +444,50 @@ All API routes require `auth:sanctum` authentication.
 
 ## Common Fixes
 
-### 1. Database Connection Refused
-Ensure the MySQL container is running:
+### 1. 502 Bad Gateway (Docker)
+The app container takes **1–2 minutes** to fully boot on first run (installing dependencies, running migrations, seeding data). Wait for PHP-FPM to be ready:
+```bash
+docker compose logs -f app
+```
+The app is ready when you see `NOTICE: ready to handle connections`. Refresh your browser after that.
+
+### 2. Port Already in Use (Docker)
+If you see `Bind for 0.0.0.0:8090 failed: port is already allocated`, another service is using that port. Either stop the conflicting service, or change the port in `docker-compose.yml`:
+```yaml
+ports:
+  - "9090:80"   # Change 8090 to any free port
+```
+
+### 3. Database Connection Refused
+**Docker:** Ensure the MySQL container is running:
 ```bash
 docker compose ps
 docker compose up -d db
 ```
-If running locally, verify port `3306` and credentials inside `.env`.
+**Local:** Verify port `3306` and credentials inside `.env`. Make sure your MySQL service is running.
 
-### 2. Queue Jobs Not Processing (AI summaries stuck)
+### 4. Queue Jobs Not Processing (AI summaries stuck)
 Make sure `queue:work` is actively running:
 ```bash
-docker compose exec app php artisan queue:work
+# Docker
+docker compose exec app php artisan queue:work --sleep=3 --tries=3
+
+# Local
+php artisan queue:work --sleep=3 --tries=3
 ```
 Check failed jobs:
 ```bash
-docker compose exec app php artisan queue:failed
+php artisan queue:failed
 ```
 
-### 3. Asset Styles Not Displaying
-Compile the assets to ensure Tailwind utility styling is fully built:
+### 5. Asset Styles Not Displaying (Local)
+Compile the assets to ensure Tailwind CSS is fully built:
 ```bash
 npm run build
 ```
+> Docker users: frontend assets are pre-built and committed to the repository — no `npm` commands needed.
 
-### 4. 502 Bad Gateway (Docker)
-The app container is still booting. Wait for PHP-FPM to be ready:
-```bash
-docker compose logs -f app
-```
-
-### 5. Rebuild Everything from Scratch
+### 6. Rebuild Everything from Scratch (Docker)
 ```bash
 docker compose down -v
 docker compose build --no-cache
