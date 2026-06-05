@@ -126,7 +126,12 @@
 
         {{-- Stats donut --}}
         <div class="p-4 border-b border-white/10">
-            @php $stats = app(\App\Services\TaskService::class)->stats(); @endphp
+            @php
+                $user = auth()->user();
+                $taskService = app(\App\Services\TaskService::class);
+                $stats = $taskService->stats($user->id, $user->isAdmin());
+                $monthlyCompleted = $taskService->monthlyCompleted($user->id, $user->isAdmin());
+            @endphp
             <div class="flex items-center justify-around mb-2">
                 <div class="text-center">
                     <canvas id="donutChart" width="90" height="90"></canvas>
@@ -175,13 +180,13 @@ new Chart(document.getElementById('donutChart'), {
     options: { cutout: '70%', plugins: { legend: { display: false } }, responsive: false }
 });
 
-// Bar chart
+// Bar chart — real monthly data
 new Chart(document.getElementById('barChart'), {
     type: 'bar',
     data: {
-        labels: ['Jan','Feb','Mar','Apr','May'],
+        labels: {!! json_encode(collect($monthlyCompleted)->pluck('label')) !!},
         datasets: [{
-            data: [30, 45, 28, 60, {{ $stats['completed'] }}],
+            data: {!! json_encode(collect($monthlyCompleted)->pluck('count')) !!},
             backgroundColor: '#3b82f6',
             borderRadius: 4,
         }]
@@ -190,7 +195,7 @@ new Chart(document.getElementById('barChart'), {
         plugins: { legend: { display: false } },
         scales: {
             x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
-            y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: '#374060' } }
+            y: { ticks: { color: '#94a3b8', font: { size: 10 }, stepSize: 1 }, grid: { color: '#374060' }, beginAtZero: true }
         }
     }
 });
