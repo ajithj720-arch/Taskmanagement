@@ -90,71 +90,250 @@ app/
 
 ---
 
-## Setup Instructions
+## Quick Start — Create and Run the Application
 
-### Requirements
-
-- **Docker Environment (Recommended):** Docker Desktop (includes Docker Compose)
-- **Local Environment:** PHP >= 8.2, Composer, Node.js >= 18, NPM, MySQL >= 8.0
+Follow these steps from scratch to get the application running on your machine. Choose **Option A** (local setup, recommended for reviewers) or **Option B** (Docker).
 
 ---
 
-### Installation & Environment Setup
+### Option A: Local Setup (Laragon / WAMP / XAMPP / Manual PHP)
 
-#### Option 1: Using Docker (Recommended)
+#### Prerequisites
+
+Before you begin, make sure the following are installed:
+
+| Tool | Minimum Version | Download |
+|------|----------------|----------|
+| PHP | 8.3+ | https://www.php.net/downloads |
+| Composer | 2.x | https://getcomposer.org/download/ |
+| Node.js | 18+ | https://nodejs.org/ |
+| MySQL | 8.0+ | https://dev.mysql.com/downloads/ (or use Laragon/XAMPP bundled MySQL) |
+
+> **Tip:** If you use **Laragon**, PHP, MySQL, and Composer are already included. Just make sure Node.js is installed separately.
 
 ---
 
-**Step 1 — Install Docker Desktop**
+#### Step 1 — Clone the Repository
 
-Download and install Docker Desktop from https://www.docker.com/products/docker-desktop/
+Open a terminal (Command Prompt, PowerShell, or Git Bash) and run:
 
-Make sure Docker Desktop is running before proceeding (you should see the Docker icon in your system tray).
-
----
-
-**Step 2 — Clone the Repository**
-
-Open your terminal and run:
 ```bash
 git clone https://github.com/ajithj720-arch/Taskmanagement.git
 cd Taskmanagement
 ```
-This downloads the project and moves into the project folder.
 
 ---
 
-**Step 3 — Setup the Environment File**
+#### Step 2 — Install PHP Dependencies
+
+```bash
+composer install
+```
+
+This downloads all Laravel packages into the `vendor/` directory. Takes about 1–2 minutes.
+
+---
+
+#### Step 3 — Install JavaScript Dependencies
+
+```bash
+npm install
+```
+
+This installs Vue.js, Tailwind CSS, Vite, and other frontend packages into `node_modules/`.
+
+---
+
+#### Step 4 — Create the Environment File
+
+```bash
+cp .env.example .env
+```
+
+This creates your local configuration file. Open `.env` in a text editor and update the database section to match your local MySQL credentials:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=task_management
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+> **Laragon users:** The default MySQL credentials are `root` with an empty password — the `.env.example` already has these values, so no changes are needed.
+>
+> **XAMPP/WAMP users:** Same defaults usually apply (`root` / empty password). Adjust if you configured a password.
+
+---
+
+#### Step 5 — Create the Database
+
+Create a MySQL database named `task_management`. You can do this via:
+
+**Option 1 — Using the command line:**
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS task_management;"
+```
+
+**Option 2 — Using phpMyAdmin:**
+1. Open http://localhost/phpmyadmin (Laragon/XAMPP)
+2. Click "New" in the left sidebar
+3. Enter `task_management` as the database name
+4. Click "Create"
+
+---
+
+#### Step 6 — Generate the Application Key
+
+```bash
+php artisan key:generate
+```
+
+This generates a unique encryption key and writes it to your `.env` file. Laravel requires this to run.
+
+---
+
+#### Step 7 — Run Database Migrations and Seed Demo Data
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+This will:
+- Create all required database tables (users, tasks, sessions, cache, jobs, etc.)
+- Seed the database with **2 demo users** and **8 sample tasks**
+
+You should see output like:
+```
+Dropping all tables .............. DONE
+Running migrations ............... DONE
+Seeding database ................. DONE
+```
+
+---
+
+#### Step 8 — Build Frontend Assets
+
+```bash
+npm run build
+```
+
+This compiles Vue.js components, Tailwind CSS, and all frontend assets into the `public/build/` directory.
+
+> For active development with hot-reload, use `npm run dev` instead (keeps running in a terminal).
+
+---
+
+#### Step 9 — Start the Development Server
+
+```bash
+php artisan serve
+```
+
+You should see:
+```
+INFO  Server running on [http://127.0.0.1:8000].
+```
+
+> **Laragon users:** You can alternatively access the app via Laragon's auto virtual host (e.g., `http://task-mangement-system.test`) without running `php artisan serve`.
+
+---
+
+#### Step 10 — Start the Queue Worker (Required for AI Summaries)
+
+Open a **second terminal** (keep the server running in the first one) and run:
+
+```bash
+php artisan queue:work --sleep=3 --tries=3
+```
+
+This processes background jobs. Without it, newly created tasks will show *"Processing in background queue..."* and the AI summary will never appear.
+
+> The AI runs in **mock mode** by default (`AI_MOCK=true` in `.env`), so you do not need an OpenAI API key. To use real AI, set `AI_MOCK=false` and add your `OPENAI_API_KEY`.
+
+---
+
+#### Step 11 — Open the Application
+
+Open your browser and navigate to:
+
+**http://localhost:8000**
+
+Log in with one of the seeded demo accounts:
+
+| Role | Email | Password | What You Can Do |
+|------|-------|----------|-----------------|
+| **Admin** | `admin@example.com` | `password` | Full access — create, edit, delete all tasks; manage users |
+| **Regular User** | `user@example.com` | `password` | View assigned tasks and update their status only |
+
+---
+
+#### Step 12 — Run Tests (Optional)
+
+To verify everything is working correctly:
+
+```bash
+php artisan test
+```
+
+Or run a specific test file:
+```bash
+./vendor/bin/phpunit tests/Feature/TaskTest.php
+```
+
+---
+
+### Option B: Using Docker
+
+#### Prerequisites
+
+- Docker Desktop — https://www.docker.com/products/docker-desktop/
+- Make sure Docker Desktop is running before proceeding (Docker icon visible in system tray)
+
+---
+
+#### Step 1 — Clone the Repository
+
+```bash
+git clone https://github.com/ajithj720-arch/Taskmanagement.git
+cd Taskmanagement
+```
+
+---
+
+#### Step 2 — Setup the Environment File
 
 ```bash
 cp .env.docker .env
 ```
-This copies the pre-configured Docker environment file as your `.env`. It already has:
-- `DB_HOST=db` — points to the MySQL container
-- `DB_USERNAME=taskuser` and `DB_PASSWORD=secret` — matches the MySQL container credentials
-- `APP_ENV=production` — serves pre-built CSS/JS assets without needing a Vite dev server
 
-> ⚠️ Do **not** use `.env.example` for Docker — it points to `127.0.0.1` which won't work inside containers.
+This copies the pre-configured Docker environment file. It already has:
+- `DB_HOST=db` — points to the MySQL container
+- `DB_USERNAME=taskuser` / `DB_PASSWORD=secret` — matches container credentials
+- `APP_ENV=production` — serves pre-built assets without needing a Vite dev server
+
+> Do **not** use `.env.example` for Docker — it points to `127.0.0.1` which won't work inside containers.
 
 ---
 
-**Step 4 — Build the Docker Images**
+#### Step 3 — Build the Docker Images
 
 ```bash
 docker compose build
 ```
-This builds the PHP 8.3-FPM application image — installs all Composer dependencies, copies the app files, and sets correct permissions.
 
-> ⏱ This takes **1–2 minutes** on the first run. Subsequent builds are much faster due to Docker layer caching.
+This builds the PHP 8.3-FPM application image, installs Composer dependencies, and sets permissions. Takes 1–2 minutes on first run.
 
 ---
 
-**Step 5 — Start All Containers**
+#### Step 4 — Start All Containers
 
 ```bash
 docker compose up -d
 ```
-The `-d` flag runs containers in the background (detached mode). This starts 3 containers:
+
+This starts 3 containers:
 
 | Container | Role | Port |
 |---|---|---|
@@ -164,149 +343,59 @@ The `-d` flag runs containers in the background (detached mode). This starts 3 c
 
 ---
 
-**Step 6 — Wait for the App to Finish Booting**
+#### Step 5 — Wait for Startup to Complete
 
-After containers start, the app runs an automatic startup sequence (~15–20 seconds):
+The app container automatically runs migrations, seeds data, and clears caches (~15–20 seconds). Watch progress with:
 
-- ⏳ Waits for MySQL to be fully ready
-- 🔑 Generates a secure application key
-- 🗄️ Runs all database migrations
-- 🌱 Seeds the database with demo users and tasks
-- 🧹 Clears all config, cache, and view caches
-- ✅ Starts PHP-FPM to handle requests
-
-To watch the startup progress in real time:
 ```bash
 docker compose logs -f app
 ```
-The app is ready when you see this line:
+
+The app is ready when you see:
 ```
 ==> Starting PHP-FPM...
 [...] NOTICE: ready to handle connections
 ```
+
 Press `Ctrl+C` to stop following logs.
 
 ---
 
-**Step 7 — Open the Application**
+#### Step 6 — Open the Application
 
-Open your browser and visit: **http://localhost:8000**
-
-You can log in with the seeded demo accounts:
-
-| Role | Email | Password | Access |
-|---|---|---|---|
-| Admin | `admin@example.com` | `password` | Full access — manage all tasks and users |
-| Regular User | `user@example.com` | `password` | View and update assigned tasks only |
-
----
-
-**Step 8 — Start the AI Queue Worker** *(required for AI summaries)*
-
-Open a new terminal and run:
-```bash
-docker compose exec app php artisan queue:work --sleep=3 --tries=3
-```
-> This processes the background AI jobs. Without it, tasks will show *"Processing in background queue..."* and never generate a summary.
-
----
-
-**That's it! Your app is fully running. 🎉**
-
-To stop all containers:
-```bash
-docker compose down
-```
-
----
-
-#### Option 2: Running Locally (Without Docker)
-
-**Step 1 — Setup Environment File**
-```bash
-cp .env.example .env
-```
-
-**Step 2 — Install Dependencies**
-```bash
-composer install
-npm install
-```
-
-**Step 3 — Generate Application Key**
-```bash
-php artisan key:generate
-```
-
-**Step 4 — Database Configuration**
-
-Configure your database credentials in the `.env` file:
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=task_management
-DB_USERNAME=root
-DB_PASSWORD=your_password
-```
-
-**Step 5 — Run Migrations & Seeders**
-```bash
-php artisan migrate:fresh --seed
-```
-
-**Step 6 — Compile Frontend Assets**
-```bash
-npm run build
-```
-
----
-
-### Running the Application
-
-**Start the Development Server:**
-```bash
-# Docker
-docker compose up -d
-
-# Local
-php artisan serve
-```
-
-**Start the Queue Worker (mandatory for AI Summary processing):**
-```bash
-# Docker
-docker compose exec app php artisan queue:work --sleep=3 --tries=3
-
-# Local
-php artisan queue:work
-```
-
-> ⚠️ The queue worker **must** be running for AI summaries to be generated. Without it, tasks will show "Processing in background queue..." indefinitely.
-
-**Access the Application:**
-
-Navigate to [http://localhost:8000](http://localhost:8000)
+Open your browser: **http://localhost:8000**
 
 | Role | Email | Password |
-|---|---|---|
-| Admin | `admin@example.com` | `password` |
-| Regular User | `user@example.com` | `password` |
+|------|-------|----------|
+| **Admin** | `admin@example.com` | `password` |
+| **Regular User** | `user@example.com` | `password` |
 
 ---
 
-### Running Tests
+#### Step 7 — Start the AI Queue Worker
 
-To verify all feature and authorization flows:
+Open a new terminal:
+
 ```bash
-# Docker
+docker compose exec app php artisan queue:work --sleep=3 --tries=3
+```
+
+---
+
+#### Stop / Restart
+
+```bash
+docker compose down        # Stop all containers
+docker compose up -d       # Restart
+docker compose down -v     # Stop and delete database volume (full reset)
+```
+
+---
+
+#### Run Tests (Docker)
+
+```bash
 docker compose exec app php artisan test
-
-# Local
-php artisan test
-
-# Specific test file
-./vendor/bin/phpunit tests/Feature/TaskTest.php
 ```
 
 ---
