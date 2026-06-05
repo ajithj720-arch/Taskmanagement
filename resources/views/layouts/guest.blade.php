@@ -6,12 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Task Manager') }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-    @if(app()->environment('production'))
-        <link rel="stylesheet" href="{{ asset('build/assets/app-CrNqOrdm.css') }}">
-        <script type="module" src="{{ asset('build/assets/app-CpOtDUtT.js') }}"></script>
-    @else
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @endif
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
