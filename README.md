@@ -98,21 +98,6 @@ Follow these steps from scratch to get the application running on your machine. 
 
 ### Option A: Local Setup (Laragon / WAMP / XAMPP / Manual PHP)
 
-#### Prerequisites
-
-Before you begin, make sure the following are installed:
-
-| Tool | Minimum Version | Download |
-|------|----------------|----------|
-| PHP | 8.3+ | https://www.php.net/downloads |
-| Composer | 2.x | https://getcomposer.org/download/ |
-| Node.js | 18+ | https://nodejs.org/ |
-| MySQL | 8.0+ | https://dev.mysql.com/downloads/ (or use Laragon/XAMPP bundled MySQL) |
-
-> **Tip:** If you use **Laragon**, PHP, MySQL, and Composer are already included. Just make sure Node.js is installed separately.
-
----
-
 #### Step 1 — Clone the Repository
 
 Open a terminal (Command Prompt, PowerShell, or Git Bash) and run:
@@ -439,6 +424,19 @@ All API routes require `auth:sanctum` authentication.
 - **Auth:** Laravel Breeze (session-based)
 - **API Auth:** Laravel Sanctum
 - **Containerisation:** Docker (PHP-FPM + Nginx + MySQL)
+
+---
+
+## Screenshots
+
+### Login Page
+![Login Page](ss_01_login.png)
+
+### Dashboard (Analytics & Charts)
+![Dashboard](ss_02_dashboard.png)
+
+### Task List Page
+![Task List](ss_03_tasks.png)
 
 ---
 
