@@ -69,31 +69,16 @@ RUN composer install \
     --no-interaction
 
 # ============================================================
-# Stage 7 — Install Node.js
-# Required for building frontend assets (Vue.js, Tailwind CSS)
-# Using NodeSource to get Node.js 20 LTS
-# ============================================================
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# ============================================================
-# Stage 8 — Copy Application Code
+# Stage 7 — Copy Application Code
 # Copy all project files into the container
 # (Done AFTER composer install for better layer caching)
+# Frontend assets (public/build/) are pre-built and committed
+# to the repository — no Node.js needed in the container
 # ============================================================
 COPY . .
 
 # ============================================================
-# Stage 9 — Build Frontend Assets
-# Install NPM packages and compile Vue.js, Tailwind CSS,
-# and all Vite-bundled assets into public/build/
-# ============================================================
-RUN npm install && npm run build
-
-# ============================================================
-# Stage 10 — Optimise Autoloader
+# Stage 8 — Optimise Autoloader
 # Generate an optimised class map for faster class loading
 # in production
 # ============================================================

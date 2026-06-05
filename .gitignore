@@ -14,7 +14,7 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
+# /public/build — committed for Docker (pre-built assets, no Node.js needed)
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
