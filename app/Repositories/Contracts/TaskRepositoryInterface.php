@@ -22,6 +22,8 @@ interface TaskRepositoryInterface
     public function stats(?int $userId = null, bool $isAdmin = true): array;
 
     public function recent(int $userId, bool $isAdmin, int $limit = 5);
+
+    public function monthlyCompleted(?int $userId = null, bool $isAdmin = true): array;
 }
 
 

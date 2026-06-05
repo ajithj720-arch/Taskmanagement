@@ -71,6 +71,11 @@ class TaskService
         return $this->repo->update($id, $aiData);
     }
 
+    public function monthlyCompleted(?int $userId = null, bool $isAdmin = true): array
+    {
+        return $this->repo->monthlyCompleted($userId, $isAdmin);
+    }
+
     public function recentForUser(int $userId, bool $isAdmin, int $limit = 5)
     {
         return $this->repo->recent($userId, $isAdmin, $limit);

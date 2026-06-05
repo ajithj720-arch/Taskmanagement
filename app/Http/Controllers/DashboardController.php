@@ -16,8 +16,9 @@ class DashboardController extends Controller
         $user = $request->user();
 
         return view('dashboard', [
-            'stats'       => $this->taskService->stats($user->id, $user->isAdmin()),
-            'recentTasks' => $this->taskService->recentForUser($user->id, $user->isAdmin()),
+            'stats'            => $this->taskService->stats($user->id, $user->isAdmin()),
+            'recentTasks'      => $this->taskService->recentForUser($user->id, $user->isAdmin()),
+            'monthlyCompleted' => $this->taskService->monthlyCompleted($user->id, $user->isAdmin()),
         ]);
     }
 }

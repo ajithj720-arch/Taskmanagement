@@ -60,6 +60,36 @@ class TaskRepository implements TaskRepositoryInterface
             ->get();
     }
 
+    public function monthlyCompleted(?int $userId = null, bool $isAdmin = true): array
+    {
+        $months = collect();
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $months->push([
+                'label' => $date->format('M'),
+                'start' => $date->startOfMonth()->toDateTimeString(),
+                'end'   => $date->copy()->endOfMonth()->toDateTimeString(),
+            ]);
+        }
+
+        return $months->map(function ($month) use ($userId, $isAdmin) {
+            $query = Task::query()
+                ->where('status', 'completed')
+                ->whereBetween('updated_at', [$month['start'], $month['end']]);
+
+            if (!$isAdmin && $userId) {
+                $query->where(function ($q) use ($userId) {
+                    $q->where('assigned_to', $userId)->orWhere('created_by', $userId);
+                });
+            }
+
+            return [
+                'label' => $month['label'],
+                'count' => $query->count(),
+            ];
+        })->toArray();
+    }
+
     public function stats(?int $userId = null, bool $isAdmin = true): array
     {
         $cacheKey = $isAdmin ? 'task.stats.admin' : "task.stats.user.{$userId}";

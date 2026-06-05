@@ -133,14 +133,14 @@ new Chart(document.getElementById('statusDonut'), {
     }
 });
 
-// Bar Chart — Monthly Completion
+// Bar Chart — Monthly Completion (real data)
 new Chart(document.getElementById('completionBar'), {
     type: 'bar',
     data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: {!! json_encode(collect($monthlyCompleted)->pluck('label')) !!},
         datasets: [{
             label: 'Completed Tasks',
-            data: [12, 19, 8, 25, 18, {{ $stats['completed'] }}],
+            data: {!! json_encode(collect($monthlyCompleted)->pluck('count')) !!},
             backgroundColor: '#3b82f6',
             borderRadius: 4
         }]
@@ -150,7 +150,7 @@ new Chart(document.getElementById('completionBar'), {
         plugins: { legend: { display: false } },
         scales: {
             x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } },
-            y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#374060' } }
+            y: { ticks: { color: '#94a3b8', font: { size: 11 }, stepSize: 1 }, grid: { color: '#374060' }, beginAtZero: true }
         }
     }
 });
