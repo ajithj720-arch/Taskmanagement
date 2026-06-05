@@ -103,59 +103,120 @@ app/
 
 #### Option 1: Using Docker (Recommended)
 
-**Step 1 — Clone the Repository**
+---
+
+**Step 1 — Install Docker Desktop**
+
+Download and install Docker Desktop from https://www.docker.com/products/docker-desktop/
+
+Make sure Docker Desktop is running before proceeding (you should see the Docker icon in your system tray).
+
+---
+
+**Step 2 — Clone the Repository**
+
+Open your terminal and run:
 ```bash
 git clone https://github.com/ajithj720-arch/Taskmanagement.git
 cd Taskmanagement
 ```
+This downloads the project and moves into the project folder.
 
-**Step 2 — Setup Environment File**
+---
+
+**Step 3 — Setup the Environment File**
+
 ```bash
 cp .env.docker .env
 ```
-> This pre-configures `DB_HOST=db`, `DB_USERNAME=taskuser`, `DB_PASSWORD=secret` to match the MySQL container, and `APP_ENV=production` so the app serves pre-built assets without requiring a Vite dev server.
+This copies the pre-configured Docker environment file as your `.env`. It already has:
+- `DB_HOST=db` — points to the MySQL container
+- `DB_USERNAME=taskuser` and `DB_PASSWORD=secret` — matches the MySQL container credentials
+- `APP_ENV=production` — serves pre-built CSS/JS assets without needing a Vite dev server
 
-**Step 3 — Build Docker Images**
+> ⚠️ Do **not** use `.env.example` for Docker — it points to `127.0.0.1` which won't work inside containers.
+
+---
+
+**Step 4 — Build the Docker Images**
+
 ```bash
 docker compose build
 ```
+This builds the PHP 8.3-FPM application image — installs all Composer dependencies, copies the app files, and sets correct permissions.
 
-**Step 4 — Start All Containers**
+> ⏱ This takes **1–2 minutes** on the first run. Subsequent builds are much faster due to Docker layer caching.
+
+---
+
+**Step 5 — Start All Containers**
+
 ```bash
 docker compose up -d
 ```
-
-This starts 3 containers:
+The `-d` flag runs containers in the background (detached mode). This starts 3 containers:
 
 | Container | Role | Port |
 |---|---|---|
-| `taskmanager_app` | PHP 8.3-FPM | 9000 (internal) |
-| `taskmanager_nginx` | Nginx Web Server | **8000 → 80** |
-| `taskmanager_db` | MySQL 8.0 | 3306 |
+| `taskmanager_app` | PHP 8.3-FPM (runs Laravel) | 9000 (internal) |
+| `taskmanager_nginx` | Nginx (serves the web app) | **8000 → 80** |
+| `taskmanager_db` | MySQL 8.0 (database) | 3306 |
 
-**Step 5 — Wait for Boot (~15–20 seconds)**
+---
 
-The app container automatically:
-- ⏳ Waits for MySQL to be ready
-- 🔑 Generates the application key
-- 🗄️ Runs database migrations
-- 🌱 Seeds demo data
-- 🧹 Clears all caches
-- ✅ Starts PHP-FPM
+**Step 6 — Wait for the App to Finish Booting**
 
-Watch progress:
+After containers start, the app runs an automatic startup sequence (~15–20 seconds):
+
+- ⏳ Waits for MySQL to be fully ready
+- 🔑 Generates a secure application key
+- 🗄️ Runs all database migrations
+- 🌱 Seeds the database with demo users and tasks
+- 🧹 Clears all config, cache, and view caches
+- ✅ Starts PHP-FPM to handle requests
+
+To watch the startup progress in real time:
 ```bash
 docker compose logs -f app
 ```
-Wait until you see:
+The app is ready when you see this line:
 ```
 ==> Starting PHP-FPM...
 [...] NOTICE: ready to handle connections
 ```
+Press `Ctrl+C` to stop following logs.
 
-**Step 6 — Access the Application**
+---
 
-Navigate to **http://localhost:8000**
+**Step 7 — Open the Application**
+
+Open your browser and visit: **http://localhost:8000**
+
+You can log in with the seeded demo accounts:
+
+| Role | Email | Password | Access |
+|---|---|---|---|
+| Admin | `admin@example.com` | `password` | Full access — manage all tasks and users |
+| Regular User | `user@example.com` | `password` | View and update assigned tasks only |
+
+---
+
+**Step 8 — Start the AI Queue Worker** *(required for AI summaries)*
+
+Open a new terminal and run:
+```bash
+docker compose exec app php artisan queue:work --sleep=3 --tries=3
+```
+> This processes the background AI jobs. Without it, tasks will show *"Processing in background queue..."* and never generate a summary.
+
+---
+
+**That's it! Your app is fully running. 🎉**
+
+To stop all containers:
+```bash
+docker compose down
+```
 
 ---
 

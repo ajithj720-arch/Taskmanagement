@@ -305,6 +305,23 @@
 
         .btn-login:active { transform: scale(0.99); }
 
+        /* Create account link */
+        .create-account {
+            text-align: center;
+            margin-top: 1.1rem;
+            font-size: 0.875rem;
+            color: #4a6080;
+        }
+
+        .create-account a {
+            color: #4a7cdc;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .create-account a:hover { color: #6d9de8; }
+
         /* Divider */
         .auth-divider {
             display: flex;
@@ -504,6 +521,13 @@
 
                 <button type="submit" class="btn-login">Sign in →</button>
             </form>
+
+            <div class="create-account">
+                Don't have an account?
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}">Create one</a>
+                @endif
+            </div>
 
             <div class="auth-divider"><span>Demo credentials</span></div>
 
