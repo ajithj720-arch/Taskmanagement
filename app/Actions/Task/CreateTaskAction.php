@@ -8,11 +8,12 @@ use App\Data\TaskData;
 use App\Jobs\GenerateAISummary;
 use App\Models\Task;
 use App\Repositories\Contracts\TaskRepositoryInterface;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class CreateTaskAction
 {
+    use ClearsStatsCache;
+
     public function __construct(
         private readonly TaskRepositoryInterface $repository,
     ) {}
@@ -27,7 +28,7 @@ class CreateTaskAction
 
             dispatch(new GenerateAISummary($task));
 
-            Cache::forget('task.stats');
+            $this->clearStatsCache();
 
             return $task;
         });

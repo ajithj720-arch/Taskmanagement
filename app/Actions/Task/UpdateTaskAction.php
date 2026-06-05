@@ -7,11 +7,12 @@ namespace App\Actions\Task;
 use App\Data\TaskData;
 use App\Models\Task;
 use App\Repositories\Contracts\TaskRepositoryInterface;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class UpdateTaskAction
 {
+    use ClearsStatsCache;
+
     public function __construct(
         private readonly TaskRepositoryInterface $repository,
     ) {}
@@ -20,7 +21,7 @@ class UpdateTaskAction
     {
         return DB::transaction(function () use ($taskId, $data): Task {
             $task = $this->repository->update($taskId, $data->toArray());
-            Cache::forget('task.stats');
+            $this->clearStatsCache();
             return $task;
         });
     }
