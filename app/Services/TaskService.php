@@ -29,7 +29,7 @@ class TaskService
 
             dispatch(new \App\Jobs\GenerateAISummary($task));
 
-            Cache::forget('task.stats');
+            $this->clearStatsCache();
             return $task;
         });
     }
@@ -38,7 +38,7 @@ class TaskService
     {
         return DB::transaction(function () use ($id, $data) {
             $task = $this->repo->update($id, $data);
-            Cache::forget('task.stats');
+            $this->clearStatsCache();
             return $task;
         });
     }
@@ -50,7 +50,7 @@ class TaskService
 
     public function delete(int $id): bool
     {
-        Cache::forget('task.stats');
+        $this->clearStatsCache();
         return $this->repo->delete($id);
     }
 
@@ -59,9 +59,9 @@ class TaskService
         return $this->repo->find($id);
     }
 
-    public function stats(): array
+    public function stats(?int $userId = null, bool $isAdmin = true): array
     {
-        return $this->repo->stats();
+        return $this->repo->stats($userId, $isAdmin);
     }
 
     public function refreshAISummary(int $id): Task
@@ -74,6 +74,16 @@ class TaskService
     public function recentForUser(int $userId, bool $isAdmin, int $limit = 5)
     {
         return $this->repo->recent($userId, $isAdmin, $limit);
+    }
+
+    private function clearStatsCache(): void
+    {
+        Cache::forget('task.stats.admin');
+
+        $userIds = \App\Models\User::pluck('id');
+        foreach ($userIds as $id) {
+            Cache::forget("task.stats.user.{$id}");
+        }
     }
 }
 

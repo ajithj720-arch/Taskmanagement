@@ -60,15 +60,22 @@ class TaskRepository implements TaskRepositoryInterface
             ->get();
     }
 
-    public function stats(): array
+    public function stats(?int $userId = null, bool $isAdmin = true): array
     {
-        return Cache::remember('task.stats', 60, function () {
+        $cacheKey = $isAdmin ? 'task.stats.admin' : "task.stats.user.{$userId}";
+
+        return Cache::remember($cacheKey, 60, function () use ($userId, $isAdmin) {
+            $query = Task::query()
+                ->when(!$isAdmin && $userId, fn($q) => $q->where(function ($q) use ($userId) {
+                    $q->where('assigned_to', $userId)->orWhere('created_by', $userId);
+                }));
+
             return [
-                'total' => Task::count(),
-                'completed' => Task::where('status', 'completed')->count(),
-                'pending' => Task::where('status', 'pending')->count(),
-                'in_progress' => Task::where('status', 'in_progress')->count(),
-                'high_priority' => Task::where('priority', 'high')->count(),
+                'total' => (clone $query)->count(),
+                'completed' => (clone $query)->where('status', 'completed')->count(),
+                'pending' => (clone $query)->where('status', 'pending')->count(),
+                'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
+                'high_priority' => (clone $query)->where('priority', 'high')->count(),
             ];
         });
     }

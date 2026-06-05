@@ -19,7 +19,7 @@ interface TaskRepositoryInterface
 
     public function delete(int $id): bool;
 
-    public function stats(): array;
+    public function stats(?int $userId = null, bool $isAdmin = true): array;
 
     public function recent(int $userId, bool $isAdmin, int $limit = 5);
 }

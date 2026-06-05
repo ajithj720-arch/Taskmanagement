@@ -44,7 +44,7 @@ class TaskController extends Controller
             'tasks'   => $this->taskService->list($filters),
             'filters' => $filters,
             'users'   => $this->userService->listForAssignment(),
-            'stats'   => $this->taskService->stats(),
+            'stats'   => $this->taskService->stats($request->user()->id, $request->user()->isAdmin()),
         ]);
     }
 
