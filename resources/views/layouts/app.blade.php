@@ -6,17 +6,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Task Manager') }} - @yield('title', 'Dashboard')</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @if(app()->environment('production'))
+        <link rel="stylesheet" href="{{ asset('build/assets/app-CrNqOrdm.css') }}">
+        <script type="module" src="{{ asset('build/assets/app-CpOtDUtT.js') }}"></script>
+    @else
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
     <style>
         :root {
             --bg-body:    #1a2035;

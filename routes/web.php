@@ -8,6 +8,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn() => redirect()->route('dashboard'));
 
+// Demo auto-login (local only)
+if (app()->isLocal()) {
+    Route::get('/demo-login', function () {
+        $user = \App\Models\User::where('email', 'admin@example.com')->first();
+        auth()->login($user);
+        return redirect()->route('dashboard');
+    })->name('demo.login');
+}
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 

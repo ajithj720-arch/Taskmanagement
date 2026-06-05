@@ -8,6 +8,11 @@ until php -r "new PDO('mysql:host=db;port=3306;dbname=task_management', 'taskuse
 done
 echo "==> MySQL is ready."
 
+echo "==> Clearing stale caches..."
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+
 echo "==> Generating app key (if not set)..."
 php artisan key:generate --no-interaction --force
 

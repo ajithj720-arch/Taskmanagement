@@ -6,6 +6,8 @@ services:
     container_name: taskmanager_app
     restart: unless-stopped
     working_dir: /var/www
+    environment:
+      - APP_ENV=production
     volumes:
       - .:/var/www
     depends_on:

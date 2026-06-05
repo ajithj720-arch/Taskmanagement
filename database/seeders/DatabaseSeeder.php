@@ -14,18 +14,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // ── Admin user ──────────────────────────────
-        $admin = User::factory()->create([
-            'name'  => 'Admin User',
-            'email' => 'admin@example.com',
-            'role'  => 'admin',
-        ]);
+        $admin = User::where('email', 'admin@example.com')->first()
+            ?? User::factory()->create(['name' => 'Admin User', 'email' => 'admin@example.com', 'role' => 'admin']);
 
         // ── Regular user ─────────────────────────────
-        $user = User::factory()->create([
-            'name'  => 'John Doe',
-            'email' => 'user@example.com',
-            'role'  => 'user',
-        ]);
+        $user = User::where('email', 'user@example.com')->first()
+            ?? User::factory()->create(['name' => 'John Doe', 'email' => 'user@example.com', 'role' => 'user']);
 
         // ── Add more users here ───────────────────────
         // Copy and paste this block to add extra users:
@@ -47,15 +41,17 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Documentation and README', 'description' => 'Write comprehensive README covering architecture, AI prompts, and setup instructions.', 'priority' => 'low', 'status' => 'pending'],
         ];
 
-        foreach ($tasks as $i => $data) {
-            Task::create([
-                ...$data,
-                'created_by' => $admin->id,
-                'assigned_to' => $i % 2 === 0 ? $user->id : $admin->id,
-                'due_date' => now()->addDays(rand(3, 30))->format('Y-m-d'),
-                'ai_summary' => 'AI has analyzed this task. It involves ' . strtolower($data['title']) . ' which is critical for the project timeline.',
-                'ai_priority' => $data['priority'],
-            ]);
+        if (Task::count() === 0) {
+            foreach ($tasks as $i => $data) {
+                Task::create([
+                    ...$data,
+                    'created_by' => $admin->id,
+                    'assigned_to' => $i % 2 === 0 ? $user->id : $admin->id,
+                    'due_date' => now()->addDays(rand(3, 30))->format('Y-m-d'),
+                    'ai_summary' => 'AI has analyzed this task. It involves ' . strtolower($data['title']) . ' which is critical for the project timeline.',
+                    'ai_priority' => $data['priority'],
+                ]);
+            }
         }
     }
 }
